@@ -42,8 +42,8 @@ class QuestionFactory: QuestionFactoryProtocol {
             // question generation
             let ratingInDoubleDigits = Int(rating*10)
             let range = 5
-            let randomNumberAroundRatingInDoubleDigits = min((ratingInDoubleDigits-range...(ratingInDoubleDigits+range)).randomElement() ?? 0, 99)
-            let ratingInQuestionFloat: Float = Float(randomNumberAroundRatingInDoubleDigits)/10
+            let randomNumberAroundRatingInDoubleDigits = min((ratingInDoubleDigits-range...ratingInDoubleDigits+range).randomElement() ?? 0, 99)
+            let ratingInQuestionFloat = Float(randomNumberAroundRatingInDoubleDigits)/10
             let text = "Рейтинг этого фильма больше чем \(ratingInQuestionFloat)?"
             let correctAnswer = rating > ratingInQuestionFloat
             
