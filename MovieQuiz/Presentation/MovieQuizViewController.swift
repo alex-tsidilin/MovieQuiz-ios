@@ -10,7 +10,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
         
         currentQuestion = question
-        let viewModel = convert(model: question)
+        let viewModel = presenter.convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
@@ -38,13 +38,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showLoadingIndicator()
     }
     
-    private var currentQuestionIndex: Int = 0
     private var numberOfCorrectAnswers: Int = 0
-    private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
     private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticService!
+    private let presenter = MovieQuizPresenter()
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else {
@@ -87,13 +86,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter?.showAlert(quiz: alertModel)
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(), // распаковываем картинку
-            question: model.text, // берём текст вопроса
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")// высчитываем номер вопроса
-    }
-    
     private func showAnswerResult(isCorrect: Bool) {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
@@ -107,10 +99,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showNextQuestionOrResults() {
-        if currentQuestionIndex == questionsAmount - 1 {
-            statisticService?.store(correct: numberOfCorrectAnswers, total: questionsAmount) // записываем новые результаты в UserDefaults
+        if presenter.isLastQuestion() {
+            statisticService?.store(correct: numberOfCorrectAnswers, total: presenter.questionsAmount)
             let text = """
-                    Ваш результат: \(numberOfCorrectAnswers) из \(questionsAmount)
+                    Ваш результат: \(numberOfCorrectAnswers) из \(presenter.questionsAmount)
                     Количество сыгранных квизов: \(statisticService.gamesCount)
                     Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date))
                     Средняя точность: \(Int(statisticService.totalAccuracy))%
@@ -122,13 +114,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             show(quiz: viewModel)// показать результат квиза
             
         } else {
-            currentQuestionIndex += 1 // увеличиваем индекс текущего урока на 1; таким образом мы сможем получить следующий урок
+            presenter.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
         }
     }
     
     private func restartGame() {
-        self.currentQuestionIndex = 0
+        self.presenter.resetQuestionIndex()
         self.numberOfCorrectAnswers = 0
         self.questionFactory?.requestNextQuestion()
     }

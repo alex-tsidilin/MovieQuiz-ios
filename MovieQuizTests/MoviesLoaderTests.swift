@@ -1,9 +1,3 @@
-//
-//  MoviesLoaderTests.swift
-//  MovieQuizTests
-//
-//  Created by Alexey Tsidilin on 12.11.2022.
-//
 
 import Foundation
 
