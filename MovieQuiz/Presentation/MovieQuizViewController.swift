@@ -6,19 +6,20 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         super.viewDidLoad()
         imageView.layer.cornerRadius = 20  // закругляю картинку
         alertPresenter = AlertPresenter(viewController: self)
-        showLoadingIndicator()
         presenter = MovieQuizPresenter(viewController: self)
+        showLoadingIndicator()
     }
     
     private var alertPresenter: AlertPresenter?
     private var presenter: MovieQuizPresenter!
     
-    @IBAction private func yesButtonClicked(_ sender: UIButton) { presenter.yesButtonClicked() }
-    @IBAction private func noButtonClicked(_ sender: UIButton) { presenter.noButtonClicked() }
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
+    
+    @IBAction private func yesButtonClicked(_ sender: UIButton) { presenter.yesButtonClicked() }
+    @IBAction private func noButtonClicked(_ sender: UIButton) { presenter.noButtonClicked() }
     
     func show(quiz step: QuizStepViewModel) {
         // здесь мы заполняем нашу картинку, текст и счётчик данными
@@ -64,8 +65,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
             buttonText: "Попробовать ещё раз")
         {   [weak self] _ in
             guard let self = self else { return }
-            self.presenter.restartGame()
-            self.presenter.questionFactory?.loadData()
+            self.presenter.reloadGame()
             self.showLoadingIndicator()
         }
         alertPresenter?.showAlert(quiz: networkError)
